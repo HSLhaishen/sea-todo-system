@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>我的待办事项</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: "Microsoft YaHei", Arial, sans-serif;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        /* 海洋主题动态渐变背景 */
+        background: linear-gradient(
+          -45deg,
+          #1e3c72,
+          #2a5298,
+          #1c92d2,
+          #7db9e8,
+          #1e3c72
+        );
+        background-size: 400% 400%;
+        animation: oceanWave 15s ease infinite;
+        min-height: 100vh;
+        position: relative;
+      }
+
+      @keyframes oceanWave {
+        0% {
+          background-position: 0% 50%;
+        }
+        50% {
+          background-position: 100% 50%;
+        }
+        100% {
+          background-position: 0% 50%;
+        }
+      }
+
+      /* 气泡背景容器 */
+      .bubbles {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        overflow: hidden;
+      }
+
+      .bubble {
+        position: absolute;
+        bottom: -100px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        animation: rise 10s infinite ease-in;
+      }
+
+      @keyframes rise {
+        0% {
+          bottom: -100px;
+          transform: translateX(0);
+        }
+        50% {
+          transform: translateX(100px);
+        }
+        100% {
+          bottom: 1080px;
+          transform: translateX(-200px);
+        }
+      }
+
+      /* 内容区域样式 */
+      h1 {
+        color: white;
+        text-align: center;
+        margin-bottom: 30px;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+      }
+
+      .add-form {
+        background: rgba(255, 255, 255, 0.92);
+        backdrop-filter: blur(8px);
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        margin-bottom: 20px;
+      }
+
+      input[type="text"] {
+        padding: 10px;
+        width: 70%;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 16px;
+      }
+
+      select {
+        padding: 10px;
+        margin-left: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+      }
+
+      button {
+        padding: 10px 20px;
+        background: #007bff;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+      }
+
+      button:hover {
+        background: #0056b3;
+      }
+
+      /* 分类筛选按钮 */
+      .filter-buttons {
+        background: rgba(255, 255, 255, 0.92);
+        backdrop-filter: blur(8px);
+        padding: 15px;
+        border-radius: 12px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        margin: 15px 0;
+        text-align: center;
+      }
+
+      .filter-btn {
+        margin: 0 5px;
+        padding: 5px 10px;
+        border-radius: 15px;
+        text-decoration: none;
+        display: inline-block;
+      }
+
+      .filter-btn.active {
+        border: 2px solid #333 !important;
+        font-weight: bold;
+        transform: scale(1.05);
+      }
+
+      /* 任务列表 */
+      .todo-list {
+        background: rgba(255, 255, 255, 0.92);
+        backdrop-filter: blur(8px);
+        border-radius: 12px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        overflow: hidden;
+      }
+
+      .todo-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px 20px;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        background: rgba(255, 255, 255, 0.8);
+      }
+
+      .todo-item:hover {
+        background: rgba(255, 255, 255, 0.95);
+      }
+
+      .todo-item:last-child {
+        border-bottom: none;
+      }
+
+      .todo-item.done {
+        background-color: rgba(248, 249, 250, 0.8);
+      }
+
+      .todo-item.done .task-text {
+        text-decoration: line-through;
+        color: #6c757d;
+      }
+
+      .task-text {
+        flex-grow: 1;
+        font-size: 16px;
+      }
+
+      /* 分类标签 */
+      .category-tag {
+        color: black;
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-size: 12px;
+        margin-right: 10px;
+        display: inline-block;
+        font-weight: bold;
+        border: 1px solid rgba(0, 0, 0, 0.1);
+      }
+
+      /* 操作按钮 */
+      .todo-actions {
+        display: flex;
+        gap: 10px;
+      }
+
+      .action-btn {
+        padding: 6px 12px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        text-decoration: none;
+        font-size: 14px;
+        display: inline-block;
+        text-align: center;
+      }
+
+      .complete-btn {
+        background: #28a745;
+        color: white;
+      }
+
+      .complete-btn:hover {
+        background: #218838;
+      }
+
+      .reset-btn {
+        background: #ffc107;
+        color: #212529;
+      }
+
+      .reset-btn:hover {
+        background: #e0a800;
+      }
+
+      .delete-btn {
+        background: #dc3545;
+        color: white;
+      }
+
+      .delete-btn:hover {
+        background: #c82333;
+      }
+
+      /* 统计信息 */
+      .stats {
+        margin-top: 20px;
+        text-align: center;
+        color: white;
+        font-size: 14px;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+      }
+    </style>
+  </head>
+  <body>
+    <!-- 动态气泡背景 -->
+    <div class="bubbles" id="bubblesContainer"></div>
+
+    <h1>📝 我的待办事项</h1>
+
+    <!-- 添加任务表单 -->
+    <form action="/add" method="POST" class="add-form">
+      <input type="text" name="task" placeholder="输入新任务..." required />
+      <select
+        name="category"
+        style="padding: 10px; margin-left: 10px; border: 1px solid #ddd"
+      >
+        {% for category in categories %}
+        <option value="{{category}}">{{category}}</option>
+        {% endfor %}
+      </select>
+      <button type="submit">添加任务</button>
+    </form>
+
+    <!-- 分类筛选按钮 -->
+    <div class="filter-buttons">
+      <strong>筛选:</strong>
+      <a
+        href="?filter=全部"
+        class="filter-btn {% if current_filter == '全部' %}active{% endif %}"
+        date-category="全部"
+        style="background: #f0f0f0; color: black"
+      >
+        全部
+      </a>
+      {% for category in categories %}
+      <a
+        href="?filter={{ category }}"
+        class="filter-btn {% if current_filter == category %}active{% endif %}"
+        date-category="{{category}}"
+        style="background: {{ color_map[category] }}; color: white;"
+      >
+        {{ category }}
+      </a>
+      {% endfor %}
+    </div>
+    <!-- 数据统计面板 -->
+    <div
+      class="stats-panel"
+      style="
+        background: rgba(255, 255, 255, 0.92);
+        backdrop-filter: blur(8px);
+        padding: 15px;
+        border-radius: 12px;
+        margin: 15px 0;
+        text-align: center;
+      "
+    >
+      <h3 style="margin-bottom: 15px; color: #333">📊 今日统计</h3>
+      <div
+        style="display: flex; justify-content: space-around; flex-wrap: wrap"
+      >
+        <div class="stat-item">
+          <div style="font-size: 24px; color: #007bff; font-weight: bold">
+            {{ total_tasks }}
+          </div>
+          <div style="font-size: 12px; color: #666">总任务</div>
+        </div>
+        <div class="stat-item">
+          <div style="font-size: 24px; color: #28a745; font-weight: bold">
+            {{ completed_tasks }}
+          </div>
+          <div style="font-size: 12px; color: #666">已完成</div>
+        </div>
+        <div class="stat-item">
+          <div style="font-size: 24px; color: #ff6b35; font-weight: bold">
+            {{ completion_rate }}%
+          </div>
+          <div style="font-size: 12px; color: #666">完成率</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 任务列表 -->
+    <div class="todo-list">
+      {% for todo in todos %}
+      <div
+        class="todo-item {% if todo.done %}done{% endif %}"
+        date-category="{{todo.category}}"
+      >
+        <span class="task-text">
+          <!-- 确保分类标签这样显示 -->
+          <span
+            class="category-tag"
+            style="background-color: {{ color_map.get(todo.category, '#9500FF') }};"
+          >
+            {{ todo.category }}
+          </span>
+          {{ todo.task }}
+        </span>
+        <div class="todo-actions">
+          <a
+            href="/toggle/{{ todo.id }}"
+            class="action-btn {% if todo.done %}reset-btn{% else %}complete-btn{% endif %}"
+          >
+            {% if todo.done %}↶ 重置{% else %}✓ 完成{% endif %}
+          </a>
+          <a href="/delete/{{ todo.id }}" class="action-btn delete-btn"
+            >🗑 删除</a
+          >
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <!-- 统计信息 -->
+    <div class="stats">
+      {% set done_count = 0 %} {% for todo in todos %} {% if todo.done %} {% set
+      done_count = done_count + 1 %} {% endif %} {% endfor %} 总计: {{
+      todos|length }} 个任务, 已完成: {{ done_count }} 个
+    </div>
+
+    <script>
+      // 创建动态气泡
+      function createBubbles() {
+        const container = document.getElementById("bubblesContainer");
+        if (!container) return;
+
+        const bubbleCount = 12;
+
+        for (let i = 0; i < bubbleCount; i++) {
+          const bubble = document.createElement("div");
+          bubble.classList.add("bubble");
+
+          // 随机大小和位置
+          const size = Math.random() * 40 + 15;
+          const left = Math.random() * 100;
+          const animationDuration = Math.random() * 10 + 10;
+          const animationDelay = Math.random() * 5;
+
+          bubble.style.width = `${size}px`;
+          bubble.style.height = `${size}px`;
+          bubble.style.left = `${left}%`;
+          bubble.style.animationDuration = `${animationDuration}s`;
+          bubble.style.animationDelay = `${animationDelay}s`;
+
+          container.appendChild(bubble);
+        }
+      }
+
+      // 页面加载后创建气泡
+      document.addEventListener("DOMContentLoaded", createBubbles);
+    </script>
+    <script>
+      // 实时筛选功能
+      document.addEventListener("DOMContentLoaded", function () {
+        // 给所有筛选按钮添加点击事件
+        document
+          .querySelectorAll(".filter-btn[data-category]")
+          .forEach((btn) => {
+            btn.addEventListener("click", function (e) {
+              e.preventDefault(); // 阻止默认链接跳转
+
+              const category = this.dataset.category;
+
+              // 更新活跃状态
+              document
+                .querySelectorAll(".filter-btn")
+                .forEach((b) => b.classList.remove("active"));
+              this.classList.add("active");
+
+              // 筛选任务
+              document.querySelectorAll(".todo-item").forEach((item) => {
+                const itemCategory = item.dataset.category;
+
+                if (category === "全部" || itemCategory === category) {
+                  item.style.display = "flex";
+                } else {
+                  item.style.display = "none";
+                }
+              });
+
+              // 更新URL（不刷新页面）
+              history.pushState(null, "", `?filter=${category}`);
+
+              console.log(`筛选显示: ${category} 分类`);
+            });
+          });
+
+        // 初始化：根据当前URL参数设置活跃状态
+        const urlParams = new URLSearchParams(window.location.search);
+        const currentFilter = urlParams.get("filter") || "全部";
+        document.querySelectorAll(".filter-btn").forEach((btn) => {
+          if (btn.dataset.category === currentFilter) {
+            btn.classList.add("active");
+          }
+        });
+      });
+    </script>
+  </body>
+</html>

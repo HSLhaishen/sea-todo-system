@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>登录 - 我的待办事项</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: "Microsoft YaHei", Arial, sans-serif;
+        /* 海洋主题动态渐变背景 */
+        background: linear-gradient(
+          -45deg,
+          #1e3c72,
+          #2a5298,
+          #1c92d2,
+          #7db9e8,
+          #1e3c72
+        );
+        background-size: 400% 400%;
+        animation: oceanWave 15s ease infinite;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      @keyframes oceanWave {
+        0% {
+          background-position: 0% 50%;
+        }
+        50% {
+          background-position: 100% 50%;
+        }
+        100% {
+          background-position: 0% 50%;
+        }
+      }
+
+      /* 添加一些动态气泡效果 */
+      .bubbles {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        overflow: hidden;
+      }
+
+      .bubble {
+        position: absolute;
+        bottom: -100px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        animation: rise 10s infinite ease-in;
+      }
+
+      @keyframes rise {
+        0% {
+          bottom: -100px;
+          transform: translateX(0);
+        }
+        50% {
+          transform: translateX(100px);
+        }
+        100% {
+          bottom: 1080px;
+          transform: translateX(-200px);
+        }
+      }
+
+      .login-container {
+        position: relative;
+        z-index: 2;
+      }
+
+      .login-form {
+        background: rgba(255, 255, 255, 0.95);
+        padding: 40px;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        backdrop-filter: blur(10px);
+        width: 100%;
+        max-width: 400px;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+      }
+
+      .login-form h2 {
+        text-align: center;
+        margin-bottom: 30px;
+        color: #333;
+        font-size: 28px;
+      }
+
+      .form-group {
+        margin-bottom: 20px;
+      }
+
+      .form-group input {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-size: 16px;
+      }
+
+      .login-btn {
+        width: 100%;
+        padding: 12px;
+        background: #007bff;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background 0.3s;
+      }
+
+      .login-btn:hover {
+        background: #0056b3;
+      }
+
+      .error-message {
+        color: #dc3545;
+        text-align: center;
+        margin-top: 10px;
+      }
+
+      .register-link {
+        text-align: center;
+        margin-top: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- 动态气泡背景 -->
+    <div class="bubbles" id="bubblesContainer"></div>
+
+    <!-- 登录表单 -->
+    <div class="login-container">
+      <form class="login-form" method="POST">
+        <h2>🌊 欢迎回来</h2>
+
+        {% if error %}
+        <div class="error-message">{{ error }}</div>
+        {% endif %}
+
+        <div class="form-group">
+          <input type="text" name="username" placeholder="用户名" required />
+        </div>
+
+        <div class="form-group">
+          <input type="password" name="password" placeholder="密码" required />
+        </div>
+
+        <button type="submit" class="login-btn">登录</button>
+
+        <div class="register-link">
+          <a href="/register">还没有账号？立即注册</a>
+        </div>
+      </form>
+    </div>
+
+    <script>
+      // 创建动态气泡
+      function createBubbles() {
+        const container = document.getElementById("bubblesContainer");
+        const bubbleCount = 15;
+
+        for (let i = 0; i < bubbleCount; i++) {
+          const bubble = document.createElement("div");
+          bubble.classList.add("bubble");
+
+          // 随机大小和位置
+          const size = Math.random() * 60 + 20;
+          const left = Math.random() * 100;
+          const animationDuration = Math.random() * 10 + 10;
+          const animationDelay = Math.random() * 5;
+
+          bubble.style.width = `${size}px`;
+          bubble.style.height = `${size}px`;
+          bubble.style.left = `${left}%`;
+          bubble.style.animationDuration = `${animationDuration}s`;
+          bubble.style.animationDelay = `${animationDelay}s`;
+
+          container.appendChild(bubble);
+        }
+      }
+
+      // 页面加载后创建气泡
+      document.addEventListener("DOMContentLoaded", createBubbles);
+    </script>
+  </body>
+</html>

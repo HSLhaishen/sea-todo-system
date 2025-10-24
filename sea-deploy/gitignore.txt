@@ -1,0 +1,21 @@
+# 数据库
+*.db
+*.sqlite3
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+venv/
+
+# 环境变量
+.env
+.env.local
+
+# 系统
+.DS_Store
+Thumbs.db
+
+# 日志
+*.log
